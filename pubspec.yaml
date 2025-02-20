@@ -39,8 +39,10 @@ dependencies:
   dio: ^5.8.0+1
   google_fonts: ^6.2.1
   flutter_svg: ^2.0.17
-  vector_graphics_compiler: ^1.1.16
   cached_network_image: ^3.4.1
+  readmore: ^3.0.0
+  material_symbols_icons: ^4.2805.1
+  vector_graphics: ^1.1.18
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +54,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  vector_graphics_compiler: ^1.1.16
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

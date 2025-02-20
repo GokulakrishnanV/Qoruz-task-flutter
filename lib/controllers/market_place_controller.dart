@@ -19,7 +19,7 @@ class MarketPlaceController extends ChangeNotifier {
 
   Future<ApiResponse<MarketPlaceList>> getMarketPlaceList({required String page}) async {
     _marketPlaceList = ApiResponse.loading('Fetching MarketPlace List');
-
+    notifyListeners();
     try {
       final response = await _service.getMarketPlaceList(page: page);
       final data = MarketPlaceList.fromJson(response);
@@ -34,7 +34,7 @@ class MarketPlaceController extends ChangeNotifier {
 
   Future<ApiResponse<MarketPlaceDetail>> getMarketPlaceDetails({required String idHash}) async {
     _marketPlaceDetail = ApiResponse.loading('Fetching MarketPlace Details');
-
+    notifyListeners();
     try {
       final response = await _service.getMarketPlaceDetails(idHash: idHash);
       final data = MarketPlaceDetail.fromJson(response);

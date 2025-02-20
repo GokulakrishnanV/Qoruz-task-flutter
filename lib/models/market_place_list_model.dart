@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
+
 class MarketPlaceList {
   bool? ok;
   List<MarketplaceRequests>? marketplaceRequests;
@@ -32,6 +35,9 @@ class MarketplaceRequests {
   bool? anyLanguage;
   bool? isDealClosed;
   String? slug;
+  IconData? icon;
+  List<Color>? colors;
+  Alignment? begin, end;
 
   MarketplaceRequests({
     this.idHash,
@@ -48,6 +54,10 @@ class MarketplaceRequests {
     this.anyLanguage,
     this.isDealClosed,
     this.slug,
+    this.icon,
+    this.colors,
+    this.begin,
+    this.end,
   });
 
   MarketplaceRequests.fromJson(Map<String, dynamic> json) {
@@ -65,6 +75,42 @@ class MarketplaceRequests {
     anyLanguage = json['any_language'];
     isDealClosed = json['is_deal_closed'];
     slug = json['slug'];
+    switch (serviceType) {
+      case 'General Marketing Services':
+        break;
+      case 'Talent Management Agencies':
+        icon = Symbols.group;
+        colors = [Color(0xFF5C6CC1), Color(0xFF43A4F5), Color(0xFF2BB5F6)];
+        begin = Alignment.topLeft;
+        end = Alignment.bottomRight;
+        break;
+      case 'Photographers / Videographers':
+        icon = Symbols.photo_camera_rounded;
+        colors = [Color(0xFF2E22AB), Color(0xFF983ACA), Color(0xFFF63FA3), Color(0xFFFFD363)];
+        begin = Alignment.topCenter;
+        end = Alignment.bottomCenter;
+        break;
+      case 'Influencer Marketing Agencies':
+        icon = Symbols.person_play_rounded;
+        colors = [Color(0xFFFF7304), Color(0xFFFB2A77)];
+        begin = Alignment.centerLeft;
+        end = Alignment.centerRight;
+        break;
+      case 'Affiliate / Performance Agencies':
+        icon = Symbols.sell_rounded;
+        colors = [Color(0xFFFF7143), Color(0xFFFFA827), Color(0xFFFFC928)];
+        begin = Alignment.topLeft;
+        end = Alignment.bottomRight;
+        break;
+      case 'Social media / Content Agencies':
+        icon = Symbols.emoji_language_rounded;
+        colors = [Color(0xFFFF5622), Color(0xFFFF8965), Color(0xFFFF8965)];
+        begin = Alignment.topLeft;
+        end = Alignment.bottomRight;
+        break;
+      default:
+        break;
+    }
   }
 }
 
@@ -110,11 +156,11 @@ class RequestDetails {
   });
 
   RequestDetails.fromJson(Map<String, dynamic> json) {
-    cities = json['cities'].cast<String>();
+    cities = json['cities']?.cast<String>();
     followersRange = json['followers_range'] != null ? FollowersRange.fromJson(json['followers_range']) : null;
-    categories = json['categories'].cast<String>();
-    languages = json['languages'].cast<String>();
-    platform = json['platform'].cast<String>();
+    categories = json['categories']?.cast<String>();
+    languages = json['languages']?.cast<String>();
+    platform = json['platform']?.cast<String>();
     creatorCountMin = json['creator_count_min'];
     creatorCountMax = json['creator_count_max'];
     budget = json['budget'];
