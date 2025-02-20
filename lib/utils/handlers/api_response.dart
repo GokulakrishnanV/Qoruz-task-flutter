@@ -1,5 +1,6 @@
 import 'package:qoruz/utils/constants/enums.dart' show Status;
 
+/// A generic class that holds the API response.
 class ApiResponse<T> {
   Status status;
   T? data;

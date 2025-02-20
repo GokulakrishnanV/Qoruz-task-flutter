@@ -7,7 +7,15 @@ import 'package:qoruz/utils/constants/strings.dart';
 import 'package:qoruz/utils/handlers/app_exceptions.dart';
 import 'package:qoruz/views/widgets/custom_snackbar.dart' show CustomSnackBar;
 
-class ApiException {
+class ExceptionHandler {
+  /// Handles the API exception and throws the appropriate exception
+  /// based on the status code.
+  ///
+  /// Parameters:
+  /// - [DioException] e
+  ///
+  /// Throwable:
+  /// - [AppException]
   static AppException handleApiException(DioException e) {
     if (e.error.runtimeType == SocketException) {
       throw DataFetchException(AppStrings.noInternet);
@@ -24,23 +32,26 @@ class ApiException {
     }
   }
 
-  static void handleUiException(
-    BuildContext context, {
-    required Status status,
-    String? message,
-    bool? showDataNotFound,
-    void Function()? onServerError,
-  }) {
-    if (status == Status.error) {
-      onServerError?.call();
-      if (message == AppStrings.noInternet) {
-        //TODO: Design No internet page
+  /// Handles the UI exception and shows the appropriate message
+  /// based on the status.
+  ///
+  /// Parameters:
+  /// - [BuildContext] context (required)
+  /// - [Status] status (required)
+  /// - [String] message (optional)
+  /// - [Function] onServerError (optional)
+  ///
+  /// Returns:
+  /// - void
+  static void handleUiException(BuildContext context, {required Status status, String? message, void Function()? onServerError}) {
+    onServerError?.call();
+    if (message == AppStrings.noInternet) {
+      //TODO: Design No internet page
 
-        // context.goNamed(noInternetRoute);
-        CustomSnackBar.show(context, title: message ?? AppStrings.noInternet);
-      } else if (showDataNotFound ?? true) {
-        CustomSnackBar.show(context, title: message ?? AppStrings.unknownError);
-      }
+      // context.goNamed(noInternetRoute);
+      CustomSnackBar.show(context, title: message ?? AppStrings.noInternet);
+    } else {
+      CustomSnackBar.show(context, title: message ?? AppStrings.unknownError);
     }
   }
 }
