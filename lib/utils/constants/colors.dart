@@ -38,7 +38,8 @@ class AppColors {
 /// - White
 /// - Black
 /// - Transparent
-/// 
+/// - Neon Green
+/// - Bright Royal Blue
 class GenericColors {
   static const Color amber = Color(0xFFFFAA04);
   static const Color orange = Color(0xFFFB9B2A);
@@ -53,4 +54,6 @@ class GenericColors {
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF1F1F1F);
   static const Color transparent = Color(0x00000000);
+  static const Color neonGreen = Color(0xFF0BDC4E);
+  static const Color brightRoyalBlue = Color(0xFF0066C8);
 }

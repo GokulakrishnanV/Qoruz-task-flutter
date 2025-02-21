@@ -33,6 +33,8 @@ class _MarketPlaceScreenState extends State<MarketPlaceScreen> {
     if (!mounted) return;
     if (response.status == Status.error) {
       ExceptionHandler.handleUiException(context, status: response.status, message: response.message);
+    } else if (response.status == Status.completed) {
+      _marketPlaceList.addAll(response.data?.marketplaceRequests ?? []);
     }
   }
 
@@ -170,8 +172,6 @@ class _MarketPlaceScreenState extends State<MarketPlaceScreen> {
                           case Status.error:
                             return Center(child: Text(_controller.marketPlaceList.message ?? 'Error fetching market items'));
                           case Status.completed:
-                            _marketPlaceList.addAll(_controller.marketPlaceList.data?.marketplaceRequests ?? []);
-                            return MarketPlaceList(scrollController: _scrollController, controller: _controller);
                           default:
                             return MarketPlaceList(scrollController: _scrollController, controller: _controller);
                         }
