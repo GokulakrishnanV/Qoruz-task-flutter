@@ -4,6 +4,13 @@ import 'package:flutter/material.dart' show Color;
 ///
 /// Available colors are:
 /// - Primary Color
+/// - Primary Light Color
+/// - Primary Dark Color
+/// - Text Dark Color
+/// - Text Light Color
+/// - Text Secondary Color
+/// - Text Tertiary Color
+/// - Border Color
 class AppColors {
   static const Color primary = Color(0xFFFE4545);
   static const Color primaryLight = Color(0xFFFFEFEF);
@@ -18,15 +25,28 @@ class AppColors {
 /// A static class that holds all the [generic colors]
 ///
 /// Available colors are:
+/// - Amber
+/// - Orange
+/// - Deep Orange
+/// - Pink
+/// - Bright Red
+/// - Light Grey
+/// - Lavender Grey
 /// - Grey
 /// - Dark Grey
+/// - Ghost White
+/// - White
+/// - Black
+/// - Transparent
+/// 
 class GenericColors {
   static const Color amber = Color(0xFFFFAA04);
   static const Color orange = Color(0xFFFB9B2A);
   static const Color deepOrange = Color(0xFFFF7304);
   static const Color pink = Color(0xFFFB2A77);
   static const Color brightRed = Color(0xFFE71313);
-  static const Color lightGrey = Color(0xFFE8E7EA);
+  static const Color lightGrey = Color(0xFFE9E9E9);
+  static const Color lavenderGrey = Color(0xFFE8E7EA);
   static const Color grey = Color(0xFFCACACA);
   static const Color darkGrey = Color(0xFF7E7E7E);
   static const Color ghostWhite = Color(0xFFF5F6FB);

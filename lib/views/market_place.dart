@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 import 'package:qoruz/controllers/market_place_controller.dart';
 import 'package:qoruz/models/market_place_list_model.dart';
+import 'package:qoruz/routes/app_routes.dart' show AppRoutes;
 import 'package:qoruz/utils/constants/colors.dart';
 import 'package:qoruz/utils/constants/enums.dart' show Status;
 import 'package:qoruz/utils/constants/image_constants.dart';
@@ -23,7 +25,7 @@ class MarketPlaceScreen extends StatefulWidget {
 class _MarketPlaceScreenState extends State<MarketPlaceScreen> {
   late MarketPlaceController _controller;
   late ScrollController _scrollController;
-  final List<MarketplaceRequests> _marketPlaceList = [];
+  final List<MarketplaceRequest> _marketPlaceList = [];
 
   Future<void> _fetchData({required String page}) async {
     CustomSnackBar.show(context, title: 'Fetching MarketPlace List...');
@@ -42,6 +44,8 @@ class _MarketPlaceScreenState extends State<MarketPlaceScreen> {
     print(scrollPosition);
     if (currentPage < totalPages && scrollPosition < 1.2 && !isFetching) {
       _fetchData(page: (currentPage + 1).toString());
+    } else if (currentPage == totalPages && scrollPosition == 1.0) {
+      CustomSnackBar.show(context, title: 'End of List');
     }
   }
 
@@ -197,105 +201,108 @@ class MarketPlaceList extends StatelessWidget {
       itemBuilder: (context, index) {
         final data = _controller.marketPlaceList.data?.marketplaceRequests?[index];
 
-        return Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Container(
-                padding: EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: GenericColors.white,
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(16.0),
-                  boxShadow: [
-                    BoxShadow(color: GenericColors.black.withValues(alpha: 0.06), blurRadius: 20.0, spreadRadius: 0.0, offset: Offset(0.0, 0.0)),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-
-                      leading: NetworkImageContainer(
-                        imageUrl:
-                            data?.userDetails?.profileImage ??
-                            'https://industrial.uii.ac.id/wp-content/uploads/2019/09/385-3856300_no-avatar-png.jpg',
-                        height: 48.0,
-                        width: 48.0,
-                        borderRadius: 100.0,
-                      ),
-                      title: Text(data?.userDetails?.name ?? 'User Name'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${data?.userDetails?.designation} at ${data?.userDetails?.company}',
-                            style: TextStyle(fontSize: 12.0, color: AppColors.textSecondary),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Wrap(
-                            direction: Axis.horizontal,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              Icon(Icons.schedule, size: 12.0, color: AppColors.textTertiary),
-                              SizedBox(width: 4.0),
-                              Text(data?.createdAt ?? 'No Time', style: TextStyle(fontSize: 10.0, color: AppColors.textTertiary)),
-                            ],
-                          ),
-                        ],
-                      ),
-                      trailing: Icon(Icons.keyboard_arrow_right_rounded, color: AppColors.textSecondary),
-                      titleTextStyle: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w600, color: AppColors.textDark),
-                    ),
-                    if (data?.icon != null) ...[
-                      Row(
-                        children: [
-                          ShaderMask(
-                            shaderCallback:
-                                (bounds) => LinearGradient(colors: data!.colors ?? [], begin: data.begin!, end: data.end!).createShader(bounds),
-                            blendMode: BlendMode.srcIn,
-                            child: Icon(data?.icon, size: 14.0),
-                          ),
-                          SizedBox(width: 8.0),
-                          Text(
-                            'Looking for ${data?.serviceType}',
-                            style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w600, color: AppColors.textDark),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4.0),
+        return GestureDetector(
+          onTap: () => context.pushNamed(AppRoutes.marketplaceDetail, extra: data),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Container(
+                  padding: EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: GenericColors.white,
+                    border: Border.all(color: AppColors.border),
+                    borderRadius: BorderRadius.circular(16.0),
+                    boxShadow: [
+                      BoxShadow(color: GenericColors.black.withValues(alpha: 0.06), blurRadius: 20.0, spreadRadius: 0.0, offset: Offset(0.0, 0.0)),
                     ],
-                    Divider(color: AppColors.border, thickness: 1.0),
-                    DescriptionWidget(data: data),
-                  ],
-                ),
-              ),
-            ),
-            if (data?.isHighValue ?? false) ...[
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 18.0),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50.0),
-                      gradient: LinearGradient(colors: [Color(0xFFFE9C13), Color(0xFFFB9428)]),
-                    ),
-                    child: Wrap(
-                      direction: Axis.horizontal,
-                      children: [
-                        Icon(Symbols.award_star_rounded, size: 14.0, color: AppColors.textLight),
-                        SizedBox(width: 4.0),
-                        Text('HIGH VALUE', style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w600, color: AppColors.textLight)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+
+                        leading: NetworkImageContainer(
+                          imageUrl:
+                              data?.userDetails?.profileImage ??
+                              'https://industrial.uii.ac.id/wp-content/uploads/2019/09/385-3856300_no-avatar-png.jpg',
+                          height: 48.0,
+                          width: 48.0,
+                          borderRadius: 100.0,
+                        ),
+                        title: Text(data?.userDetails?.name ?? 'User Name'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${data?.userDetails?.designation} at ${data?.userDetails?.company}',
+                              style: TextStyle(fontSize: 12.0, color: AppColors.textSecondary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Wrap(
+                              direction: Axis.horizontal,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Icon(Icons.schedule, size: 12.0, color: AppColors.textTertiary),
+                                SizedBox(width: 4.0),
+                                Text(data?.createdAt ?? 'No Time', style: TextStyle(fontSize: 10.0, color: AppColors.textTertiary)),
+                              ],
+                            ),
+                          ],
+                        ),
+                        trailing: Icon(Icons.keyboard_arrow_right_rounded, color: AppColors.textSecondary),
+                        titleTextStyle: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w600, color: AppColors.textDark),
+                      ),
+                      if (data?.icon != null) ...[
+                        Row(
+                          children: [
+                            ShaderMask(
+                              shaderCallback:
+                                  (bounds) => LinearGradient(colors: data!.colors ?? [], begin: data.begin!, end: data.end!).createShader(bounds),
+                              blendMode: BlendMode.srcIn,
+                              child: Icon(data?.icon, size: 14.0),
+                            ),
+                            SizedBox(width: 8.0),
+                            Text(
+                              'Looking for ${data?.serviceType}',
+                              style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w600, color: AppColors.textDark),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4.0),
                       ],
-                    ),
+                      Divider(color: AppColors.border, thickness: 1.0),
+                      DescriptionWidget(data: data),
+                    ],
                   ),
                 ),
               ),
+              if (data?.isHighValue ?? false) ...[
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 18.0),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50.0),
+                        gradient: LinearGradient(colors: [Color(0xFFFE9C13), Color(0xFFFB9428)]),
+                      ),
+                      child: Wrap(
+                        direction: Axis.horizontal,
+                        children: [
+                          Icon(Symbols.award_star_rounded, size: 14.0, color: AppColors.textLight),
+                          SizedBox(width: 4.0),
+                          Text('HIGH VALUE', style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w600, color: AppColors.textLight)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         );
       },
       separatorBuilder: (context, index) => SizedBox(height: 12.0),
@@ -307,7 +314,7 @@ class MarketPlaceList extends StatelessWidget {
 class DescriptionWidget extends StatefulWidget {
   const DescriptionWidget({super.key, required this.data});
 
-  final MarketplaceRequests? data;
+  final MarketplaceRequest? data;
 
   @override
   State<DescriptionWidget> createState() => _DescriptionWidgetState();

@@ -3,7 +3,7 @@ import 'package:material_symbols_icons/symbols.dart';
 
 class MarketPlaceList {
   bool? ok;
-  List<MarketplaceRequests>? marketplaceRequests;
+  List<MarketplaceRequest>? marketplaceRequests;
   Pagination? pagination;
 
   MarketPlaceList({this.ok, this.marketplaceRequests, this.pagination});
@@ -11,16 +11,16 @@ class MarketPlaceList {
   MarketPlaceList.fromJson(Map<String, dynamic> json) {
     ok = json['ok'];
     if (json['marketplace_requests'] != null) {
-      marketplaceRequests = <MarketplaceRequests>[];
+      marketplaceRequests = <MarketplaceRequest>[];
       json['marketplace_requests'].forEach((v) {
-        marketplaceRequests!.add(MarketplaceRequests.fromJson(v));
+        marketplaceRequests!.add(MarketplaceRequest.fromJson(v));
       });
     }
     pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
   }
 }
 
-class MarketplaceRequests {
+class MarketplaceRequest {
   String? idHash;
   UserDetails? userDetails;
   bool? isHighValue;
@@ -39,7 +39,7 @@ class MarketplaceRequests {
   List<Color>? colors;
   Alignment? begin, end;
 
-  MarketplaceRequests({
+  MarketplaceRequest({
     this.idHash,
     this.userDetails,
     this.isHighValue,
@@ -60,7 +60,7 @@ class MarketplaceRequests {
     this.end,
   });
 
-  MarketplaceRequests.fromJson(Map<String, dynamic> json) {
+  MarketplaceRequest.fromJson(Map<String, dynamic> json) {
     idHash = json['id_hash'];
     userDetails = json['user_details'] != null ? UserDetails.fromJson(json['user_details']) : null;
     isHighValue = json['is_high_value'];

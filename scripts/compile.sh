@@ -19,7 +19,12 @@ for file in assets/images/vectors/*icon* assets/images/jpg/*icon*; do
 			-e 's/image//g' \
 			-e 's/icon//g' \
 			-e 's/[^a-zA-Z0-9]/ /g' | awk '{for(i=1;i<=NF;i++) {if(i==1) $i=tolower(substr($i,1,1)) substr($i,2); else $i=toupper(substr($i,1,1)) tolower(substr($i,2))}}1' | tr -d ' ')
-		echo "  static const String ${classname} = 'assets/images/vectors/${filename}';" >>$IMAGE_CONSTANTS_FILE
+
+		if [[ "$file" == assets/images/vectors/* ]]; then
+			echo "  static const String ${classname} = 'assets/images/vectors/${filename}';" >>$IMAGE_CONSTANTS_FILE
+		else
+			echo "  static const String ${classname} = 'assets/images/jpg/${filename}';" >>$IMAGE_CONSTANTS_FILE
+		fi
 	fi
 done
 
