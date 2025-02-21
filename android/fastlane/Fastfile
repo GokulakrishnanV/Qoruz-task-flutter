@@ -40,7 +40,7 @@ platform :android do
   lane :build_apk do
     sh "flutter clean"
     sh "flutter pub get"
-    sh "flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols"
+    sh "flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols --dart-define-from-file=.env.production"
     sh "cd $(git rev-parse --show-toplevel) && mv build/app/outputs/flutter-apk/app-release.apk ~/Desktop/Qoruz-App.apk"
   end
 end

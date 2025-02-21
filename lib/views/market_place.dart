@@ -661,21 +661,29 @@ class QuickFilterChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(right: 10.0),
-      child: FilterChip(
-        onSelected: (value) => onSelected(),
-        backgroundColor: selected ? AppColors.primaryLight : GenericColors.white,
-        avatar:
-            icon != null
-                ? ShaderMask(
+      child: GestureDetector(
+        onTap: onSelected,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.primaryLight : GenericColors.white,
+            border: Border.all(color: selected ? AppColors.primary : AppColors.border),
+            borderRadius: BorderRadius.circular(24.0),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (icon != null)
+                ShaderMask(
                   blendMode: BlendMode.srcIn,
                   shaderCallback: (bounds) => LinearGradient(colors: [GenericColors.amber, GenericColors.orange]).createShader(bounds),
-                  child: Icon(icon),
-                )
-                : null,
-        label: Text(label),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
-          borderRadius: BorderRadius.circular(24.0),
+                  child: SizedBox(height: 16.0, width: 16.0, child: Icon(icon, size: 16.0)),
+                ),
+              if (icon != null) SizedBox(width: 4.0),
+              Text(label),
+            ],
+          ),
         ),
       ),
     );
