@@ -77,6 +77,10 @@ class MarketplaceRequest {
     slug = json['slug'];
     switch (serviceType) {
       case 'General Marketing Services':
+        icon = Symbols.general_device_rounded;
+        colors = [Color(0xFFFE4545), Color(0xFFFB9B2A)];
+        begin = Alignment.topLeft;
+        end = Alignment.bottomRight;
         break;
       case 'Talent Management Agencies':
         icon = Symbols.group;

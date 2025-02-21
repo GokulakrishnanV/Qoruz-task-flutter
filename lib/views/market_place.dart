@@ -43,7 +43,6 @@ class _MarketPlaceScreenState extends State<MarketPlaceScreen> {
     final totalPages = _controller.marketPlaceList.data?.pagination?.totalPages ?? 0;
     final scrollPosition = _scrollController.position.maxScrollExtent / _scrollController.position.pixels;
     bool isFetching = _controller.marketPlaceList.status == Status.loading;
-    print(scrollPosition);
     if (currentPage < totalPages && scrollPosition < 1.2 && !isFetching) {
       _fetchData(page: (currentPage + 1).toString());
     } else if (currentPage == totalPages && scrollPosition == 1.0) {
@@ -73,16 +72,20 @@ class _MarketPlaceScreenState extends State<MarketPlaceScreen> {
         title: const Text('Marketplace'),
         titleTextStyle: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w700),
         flexibleSpace: Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [GenericColors.deepOrange, GenericColors.pink]))),
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.menu_open_rounded, color: GenericColors.white))],
+        actions: [
+          IconButton(
+            onPressed: () => CustomSnackBar.show(context, title: 'Menu Opened'),
+            icon: Icon(Icons.menu_open_rounded, color: GenericColors.white),
+          ),
+        ],
       ),
-
       floatingActionButton: Container(
         height: 40.0,
         decoration: BoxDecoration(
           boxShadow: [BoxShadow(color: AppColors.primaryDark.withValues(alpha: 0.2), offset: Offset(0, 12), spreadRadius: 0.0, blurRadius: 34.0)],
         ),
         child: FloatingActionButton.extended(
-          onPressed: () {},
+          onPressed: () => CustomSnackBar.show(context, title: 'Post Request Successful'),
           label: Text('Post Request'),
           icon: Icon(Icons.add_rounded),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.0)),
@@ -103,84 +106,174 @@ class _MarketPlaceScreenState extends State<MarketPlaceScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            CustomBottomNavigationItem(isSvgIcon: true, svgIcon: AppIcons.explore, label: 'Explore', onTap: () {}),
-            CustomBottomNavigationItem(icon: Icons.storefront_outlined, label: 'Marketplace', isNew: true, selected: true, onTap: () {}),
-            CustomBottomNavigationItem(isSvgIcon: true, svgIcon: AppIcons.search, label: 'Search', onTap: () {}),
-            CustomBottomNavigationItem(isSvgIcon: true, svgIcon: AppIcons.activities, label: 'Activity', onTap: () {}),
-            CustomBottomNavigationItem(isSvgIcon: true, svgIcon: AppIcons.profile, label: 'Profile', onTap: () {}),
+            CustomBottomNavigationItem(
+              isSvgIcon: true,
+              svgIcon: AppIcons.explore,
+              label: 'Explore',
+              selected: _controller.selectedPage == 0,
+              onTap: () => _controller.setSelectedPage(0),
+            ),
+            CustomBottomNavigationItem(
+              icon: Icons.storefront_outlined,
+              label: 'Marketplace',
+              isNew: true,
+              selected: _controller.selectedPage == 1,
+              onTap: () => _controller.setSelectedPage(1),
+            ),
+            CustomBottomNavigationItem(
+              isSvgIcon: true,
+              svgIcon: AppIcons.search,
+              label: 'Search',
+              selected: _controller.selectedPage == 2,
+              onTap: () => _controller.setSelectedPage(2),
+            ),
+            CustomBottomNavigationItem(
+              isSvgIcon: true,
+              svgIcon: AppIcons.activities,
+              label: 'Activity',
+              selected: _controller.selectedPage == 3,
+              onTap: () => _controller.setSelectedPage(3),
+            ),
+            CustomBottomNavigationItem(
+              isSvgIcon: true,
+              svgIcon: AppIcons.profile,
+              label: 'Profile',
+              selected: _controller.selectedPage == 4,
+              onTap: () => _controller.setSelectedPage(4),
+            ),
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.0),
-              decoration: BoxDecoration(
-                color: GenericColors.white,
-                border: Border.all(color: GenericColors.grey),
-                borderRadius: BorderRadius.circular(100.0),
-                boxShadow: [
-                  BoxShadow(color: GenericColors.black.withValues(alpha: 0.06), blurRadius: 20.0, spreadRadius: 0.0, offset: Offset(0.0, 0.0)),
-                ],
-              ),
-              child: Row(
-                children: [
-                  NetworkImageContainer(
-                    imageUrl: 'https://yt3.googleusercontent.com/ytc/AGIKgqNi-oVtCDPwSmhxBAPe887CDr_zC5_i5xuWqCI8=s900-c-k-c0x00ffffff-no-rj',
-                    height: 32.0,
-                    width: 32.0,
-                    borderRadius: 25.0,
-                  ),
-                  SizedBox(width: 10.0),
-                  Flexible(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        hintText: 'Type your requirement here . . .',
-                        hintStyle: TextStyle(fontSize: 14.0, color: AppColors.textSecondary),
-                        border: InputBorder.none,
-                      ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 00),
+        transitionBuilder: (child, animation) {
+          return SlideTransition(position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(animation), child: child);
+        },
+        child: [
+          BlankPage(label: 'Explore'),
+          MarketPlacePage(marketPlaceList: _marketPlaceList, controller: _controller, scrollController: _scrollController),
+          BlankPage(label: 'Search'),
+          BlankPage(label: 'Activity'),
+          BlankPage(label: 'Profile'),
+        ].elementAt(_controller.selectedPage),
+      ),
+    );
+  }
+}
+
+class BlankPage extends StatelessWidget {
+  const BlankPage({super.key, required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(child: Center(child: Text('$label Page')));
+  }
+}
+
+class MarketPlacePage extends StatelessWidget {
+  const MarketPlacePage({
+    super.key,
+    required List<MarketplaceRequest> marketPlaceList,
+    required MarketPlaceController controller,
+    required ScrollController scrollController,
+  }) : _marketPlaceList = marketPlaceList,
+       _controller = controller,
+       _scrollController = scrollController;
+
+  final List<MarketplaceRequest> _marketPlaceList;
+  final MarketPlaceController _controller;
+  final ScrollController _scrollController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            decoration: BoxDecoration(
+              color: GenericColors.white,
+              border: Border.all(color: GenericColors.grey),
+              borderRadius: BorderRadius.circular(100.0),
+              boxShadow: [
+                BoxShadow(color: GenericColors.black.withValues(alpha: 0.06), blurRadius: 20.0, spreadRadius: 0.0, offset: Offset(0.0, 0.0)),
+              ],
+            ),
+            child: Row(
+              children: [
+                NetworkImageContainer(
+                  imageUrl: 'https://yt3.googleusercontent.com/ytc/AGIKgqNi-oVtCDPwSmhxBAPe887CDr_zC5_i5xuWqCI8=s900-c-k-c0x00ffffff-no-rj',
+                  height: 32.0,
+                  width: 32.0,
+                  borderRadius: 25.0,
+                ),
+                SizedBox(width: 10.0),
+                Flexible(
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      hintText: 'Type your requirement here . . .',
+                      hintStyle: TextStyle(fontSize: 14.0, color: AppColors.textSecondary),
+                      border: InputBorder.none,
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 36.0,
-            child: ListView(
-              padding: EdgeInsets.only(left: 16.0, right: 6.0),
-              scrollDirection: Axis.horizontal,
-              children: [
-                QuickFilterChip(label: 'For You'),
-                QuickFilterChip(label: 'Recent', selected: true),
-                QuickFilterChip(label: 'My Requests'),
-                QuickFilterChip(label: 'Top Deals', icon: Icons.star_outline),
+                ),
               ],
             ),
           ),
-
-          Expanded(
-            child:
-                _marketPlaceList.isEmpty
-                    ? Builder(
-                      builder: (context) {
-                        switch (_controller.marketPlaceList.status) {
-                          case Status.loading:
-                            return const Center(child: CircularProgressIndicator.adaptive());
-                          case Status.error:
-                            return Center(child: Text(_controller.marketPlaceList.message ?? 'Error fetching market items'));
-                          case Status.completed:
-                          default:
-                            return MarketPlaceList(scrollController: _scrollController, controller: _controller);
-                        }
-                      },
-                    )
-                    : MarketPlaceList(scrollController: _scrollController, controller: _controller),
+        ),
+        SizedBox(
+          height: 36.0,
+          child: ListView(
+            padding: EdgeInsets.only(left: 16.0, right: 6.0),
+            scrollDirection: Axis.horizontal,
+            children: [
+              QuickFilterChip(
+                label: 'For You',
+                selected: _controller.selectedQuickFilter == 0,
+                onSelected: () => _controller.setSelectedQuickFilter(0),
+              ),
+              QuickFilterChip(
+                label: 'Recent',
+                selected: _controller.selectedQuickFilter == 1,
+                onSelected: () => _controller.setSelectedQuickFilter(1),
+              ),
+              QuickFilterChip(
+                label: 'My Requests',
+                selected: _controller.selectedQuickFilter == 2,
+                onSelected: () => _controller.setSelectedQuickFilter(2),
+              ),
+              QuickFilterChip(
+                label: 'Top Deals',
+                icon: Icons.star_outline,
+                selected: _controller.selectedQuickFilter == 3,
+                onSelected: () => _controller.setSelectedQuickFilter(3),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+
+        Expanded(
+          child:
+              _marketPlaceList.isEmpty
+                  ? Builder(
+                    builder: (context) {
+                      switch (_controller.marketPlaceList.status) {
+                        case Status.loading:
+                          return const Center(child: CircularProgressIndicator.adaptive());
+                        case Status.error:
+                          return Center(child: Text(_controller.marketPlaceList.message ?? 'Error fetching market items'));
+                        case Status.completed:
+                        default:
+                          return MarketPlaceList(scrollController: _scrollController, controller: _controller);
+                      }
+                    },
+                  )
+                  : MarketPlaceList(scrollController: _scrollController, controller: _controller),
+        ),
+      ],
     );
   }
 }
@@ -197,7 +290,7 @@ class MarketPlaceList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.separated(
       controller: _scrollController,
-      padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 126.0),
+      padding: EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 126.0),
       itemBuilder: (context, index) {
         final data = _controller.marketPlaceList.data?.marketplaceRequests?[index];
 
@@ -208,7 +301,7 @@ class MarketPlaceList extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Container(
-                  padding: EdgeInsets.all(12.0),
+                  padding: EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 12.0),
                   decoration: BoxDecoration(
                     color: GenericColors.white,
                     border: Border.all(color: AppColors.border),
@@ -273,7 +366,50 @@ class MarketPlaceList extends StatelessWidget {
                         SizedBox(height: 4.0),
                       ],
                       Divider(color: AppColors.border, thickness: 1.0),
-                      DescriptionWidget(data: data),
+                      if ((data?.description?.length ?? 0) > 150) ...[
+                        DescriptionWidget(data: data),
+                      ] else ...[
+                        Text(data?.description ?? 'No Description', style: TextStyle(fontSize: 12.0)),
+                        SizedBox(height: 8.0),
+                        MoreInfoContainer(
+                          icon: Symbols.distance_rounded,
+                          child: RichText(
+                            text: TextSpan(
+                              text: (data?.requestDetails?.cities?.take(3).join(', ') ?? 'No Location'),
+                              style: TextStyle(color: AppColors.textSecondary, fontSize: 11.0),
+                              children: [
+                                if ((data?.requestDetails?.cities?.length ?? 0) > 3) ...[
+                                  TextSpan(
+                                    text: ' +${(data?.requestDetails?.cities?.length ?? 0) - 3} more',
+                                    style: TextStyle(color: AppColors.textSecondary, fontSize: 11.0),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 8.0),
+                        Row(
+                          spacing: 8.0,
+                          children: [
+                            MoreInfoContainer(
+                              isSvgIcon: true,
+                              svgIcon: AppIcons.instagram,
+                              child: Text(
+                                '${(data?.requestDetails?.creatorCountMin ?? 0) == 0 && (data?.requestDetails?.creatorCountMax ?? 0) == 0 ? 0 : '${data?.requestDetails?.creatorCountMin ?? 0} - ${data?.requestDetails?.creatorCountMax ?? 0}'}',
+                                style: TextStyle(color: AppColors.textSecondary, fontSize: 11.0),
+                              ),
+                            ),
+                            MoreInfoContainer(
+                              icon: Symbols.category,
+                              child: Text(
+                                data?.requestDetails?.categories?.join(', ') ?? 'No Category',
+                                style: TextStyle(color: AppColors.textSecondary, fontSize: 11.0),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -347,15 +483,59 @@ class _DescriptionWidgetState extends State<DescriptionWidget> {
           trimLines: 4,
           trimMode: TrimMode.Line,
           trimCollapsedText: 'see more',
-          trimExpandedText: 'see less',
+          trimExpandedText: '...see less',
           colorClickableText: AppColors.textSecondary,
           isCollapsed: _isDescriptionCollapsed,
         ),
+
         ValueListenableBuilder(
           valueListenable: _isDescriptionCollapsed,
           builder: (context, collapsed, child) {
             if (collapsed) return const SizedBox.shrink();
-            return Column(children: [MoreInfoContainer()]);
+            return Column(
+              spacing: 8.0,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(),
+                MoreInfoContainer(
+                  icon: Symbols.distance_rounded,
+                  child: RichText(
+                    text: TextSpan(
+                      text: (widget.data?.requestDetails?.cities?.take(3).join(', ') ?? 'No Location'),
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 11.0),
+                      children: [
+                        if ((widget.data?.requestDetails?.cities?.length ?? 0) > 3) ...[
+                          TextSpan(
+                            text: ' +${(widget.data?.requestDetails?.cities?.length ?? 0) - 3} more',
+                            style: TextStyle(color: AppColors.textSecondary, fontSize: 11.0),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                Row(
+                  spacing: 8.0,
+                  children: [
+                    MoreInfoContainer(
+                      isSvgIcon: true,
+                      svgIcon: AppIcons.instagram,
+                      child: Text(
+                        '${(widget.data?.requestDetails?.creatorCountMin ?? 0) == 0 && (widget.data?.requestDetails?.creatorCountMax ?? 0) == 0 ? 0 : '${widget.data?.requestDetails?.creatorCountMin ?? 0} - ${widget.data?.requestDetails?.creatorCountMax ?? 0}'}',
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 11.0),
+                      ),
+                    ),
+                    MoreInfoContainer(
+                      icon: Symbols.category,
+                      child: Text(
+                        widget.data?.requestDetails?.categories?.join(', ') ?? 'No Category',
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 11.0),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
           },
         ),
       ],
@@ -364,16 +544,39 @@ class _DescriptionWidgetState extends State<DescriptionWidget> {
 }
 
 class MoreInfoContainer extends StatelessWidget {
-  const MoreInfoContainer({super.key});
+  const MoreInfoContainer({super.key, this.content, this.child, this.icon, this.isSvgIcon = false, this.svgIcon});
+
+  final String? content;
+  final Widget? child;
+  final IconData? icon;
+  final bool isSvgIcon;
+  final String? svgIcon;
 
   @override
   Widget build(BuildContext context) {
+    if (content == null && child == null) {
+      throw AssertionError('Either "content" or "child" must not be null');
+    }
+
+    if (isSvgIcon && (svgIcon == null || svgIcon!.isEmpty)) {
+      throw AssertionError('When "isSvgIcon" is true, "svgIcon" must not be null or empty');
+    } else if (!isSvgIcon && icon == null) {
+      throw AssertionError('When "isSvgIcon" is false, "icon" must not be null');
+    }
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       decoration: BoxDecoration(color: GenericColors.ghostWhite, borderRadius: BorderRadius.circular(6.0)),
       child: Row(
+        spacing: 4.0,
         mainAxisSize: MainAxisSize.min,
-        children: [Icon(Symbols.distance), SizedBox(width: 4.0), Flexible(child: ReadMoreText('fsf', preDataText: 'TEst', postDataText: 'dxwd'))],
+        children: [
+          isSvgIcon
+              ? SvgPicture(AssetBytesLoader(svgIcon!), colorFilter: ColorFilter.mode(GenericColors.black, BlendMode.srcIn))
+              : Icon(icon, size: 14.0),
+
+          content != null ? Text(content!, style: TextStyle(color: AppColors.textSecondary, fontSize: 11.0)) : child!,
+        ],
       ),
     );
   }
@@ -416,45 +619,50 @@ class CustomBottomNavigationItem extends StatelessWidget {
       throw AssertionError('When "isSvgIcon" is false, "icon" must not be null');
     }
 
-    return Stack(
-      alignment: Alignment.topRight,
-      children: [
-        Column(
-          children: [
-            isSvgIcon
-                ? SvgPicture(AssetBytesLoader(svgIcon!), colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn))
-                : Icon(icon, color: iconColor),
-            Spacer(),
-            Text(label, style: TextStyle(fontSize: 12.0, color: labelColor)),
-          ],
-        ),
-        if (isNew) ...[
-          Positioned(
-            right: 4.0,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-              decoration: BoxDecoration(color: GenericColors.brightRed, borderRadius: BorderRadius.circular(25.0)),
-              child: Text('NEW', style: TextStyle(fontSize: 8.0, fontWeight: FontWeight.w700, color: AppColors.textLight)),
-            ),
+    return InkWell(
+      onTap: onTap,
+      child: Stack(
+        alignment: Alignment.topRight,
+        children: [
+          Column(
+            children: [
+              isSvgIcon
+                  ? SvgPicture(AssetBytesLoader(svgIcon!), colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn))
+                  : Icon(icon, color: iconColor),
+              Spacer(),
+              Text(label, style: TextStyle(fontSize: 12.0, color: labelColor)),
+            ],
           ),
+          if (isNew) ...[
+            Positioned(
+              right: 4.0,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                decoration: BoxDecoration(color: GenericColors.brightRed, borderRadius: BorderRadius.circular(25.0)),
+                child: Text('NEW', style: TextStyle(fontSize: 8.0, fontWeight: FontWeight.w700, color: AppColors.textLight)),
+              ),
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
 
 class QuickFilterChip extends StatelessWidget {
-  const QuickFilterChip({super.key, required this.label, this.icon, this.selected = false});
+  const QuickFilterChip({super.key, required this.label, this.icon, this.selected = false, required this.onSelected});
 
   final String label;
   final IconData? icon;
   final bool selected;
+  final Function() onSelected;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(right: 10.0),
-      child: Chip(
+      child: FilterChip(
+        onSelected: (value) => onSelected(),
         backgroundColor: selected ? AppColors.primaryLight : GenericColors.white,
         avatar:
             icon != null
